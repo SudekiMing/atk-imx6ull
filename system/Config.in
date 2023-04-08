@@ -522,6 +522,12 @@ config BR2_ROOTFS_USERS_TABLES
 
 	  See manual for details on the usage and syntax of these files.
 
+config BR2_BOARD_ROOT_DIR
+	string "Board root directory"
+	default ""
+	help
+	  Specify board root directory that maybe used by post-build and post-image scripts.
+
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
 	default ""

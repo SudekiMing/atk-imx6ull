@@ -482,6 +482,11 @@ else
 export BR_NO_CCACHE
 endif
 
+# Board root directory
+BOARD_ROOT_DIR = $(call qstrip,$(BR2_BOARD_ROOT_DIR))
+# Target hostname
+TARGET_GENERIC_HOSTNAME = $(call qstrip,$(BR2_TARGET_GENERIC_HOSTNAME))
+
 # Scripts in support/ or post-build scripts may need to reference
 # these locations, so export them so it is easier to use
 export BR2_CONFIG
@@ -491,6 +496,8 @@ export STAGING_DIR
 export HOST_DIR
 export BINARIES_DIR
 export BASE_DIR
+export BOARD_ROOT_DIR
+export TARGET_GENERIC_HOSTNAME
 
 ################################################################################
 #
