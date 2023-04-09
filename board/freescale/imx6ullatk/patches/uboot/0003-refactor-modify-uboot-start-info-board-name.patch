@@ -1,0 +1,26 @@
+From 6fe8f0577f52a8ad8f480900a7ff5869f252aebf Mon Sep 17 00:00:00 2001
+From: SudekiMing <SudekiMing@163.com>
+Date: Mon, 9 Jan 2023 23:53:04 +0800
+Subject: [PATCH 5/5] refactor: modify uboot start info board name
+
+- modify uboot start info board name to `MX6ULL 14x14 ATK`
+---
+ board/freescale/mx6ullatk/mx6ullatk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/freescale/mx6ullatk/mx6ullatk.c b/board/freescale/mx6ullatk/mx6ullatk.c
+index f417fb9..b4b26bf 100644
+--- a/board/freescale/mx6ullatk/mx6ullatk.c
++++ b/board/freescale/mx6ullatk/mx6ullatk.c
+@@ -799,7 +799,7 @@ int checkboard(void)
+ 	if (is_mx6ull_9x9_evk())
+ 		puts("Board: MX6ULL 9x9 EVK\n");
+ 	else
+-		puts("Board: MX6ULL 14x14 EVK\n");
++		puts("Board: MX6ULL 14x14 ATK\n");
+ 
+ 	return 0;
+ }
+-- 
+2.7.4
+

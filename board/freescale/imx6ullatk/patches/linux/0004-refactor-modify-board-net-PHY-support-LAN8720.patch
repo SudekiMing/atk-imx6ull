@@ -1,0 +1,233 @@
+From aa0be9365a5eef5a84979d48b66f3cbd569308b1 Mon Sep 17 00:00:00 2001
+From: SudekiMing <SudekiMing@163.com>
+Date: Sun, 5 Feb 2023 00:44:24 +0800
+Subject: [PATCH 4/5] refactor: modify board net PHY support LAN8720
+
+- modify LAN8720 Reset and network clock pin driver
+- modify the `pinctrl-0` attribute of `fec1` and `fec2` nodes
+- modify LAN8720 PHY addr
+- set the `TX CLK` pin reset register for `ENET1` and `ENET2`
+- add LAN8720A Soft reset when `smsc_phy_reset` execute
+---
+ arch/arm/boot/dts/imx6ull-14x14-atk.dts   | 36 ++++++++++++++------
+ drivers/net/ethernet/freescale/fec_main.c | 13 ++++++++
+ drivers/net/phy/smsc.c                    | 55 +++++++++++++++++++++++++------
+ 3 files changed, 84 insertions(+), 20 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6ull-14x14-atk.dts b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+index 80eb761..5188e18 100644
+--- a/arch/arm/boot/dts/imx6ull-14x14-atk.dts
++++ b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+@@ -126,11 +126,9 @@
+ 		compatible = "spi-gpio";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_spi4>;
+-		pinctrl-assert-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
+ 		status = "okay";
+ 		gpio-sck = <&gpio5 11 0>;
+ 		gpio-mosi = <&gpio5 10 0>;
+-		cs-gpios = <&gpio5 7 0>;
+ 		num-chipselects = <1>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+@@ -170,30 +168,38 @@
+ 
+ &fec1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_enet1>;
++	pinctrl-0 = <&pinctrl_enet1
++		     &pinctrl_enet1_reset>;
+ 	phy-mode = "rmii";
+ 	phy-handle = <&ethphy0>;
++	phy-reset-gpios = <&gpio5 7 GPIO_ACTIVE_LOW>;
++	phy-reset-duration = <200>;
+ 	status = "okay";
+ };
+ 
+ &fec2 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_enet2>;
++	pinctrl-0 = <&pinctrl_enet2
++		     &pinctrl_enet2_reset>;
+ 	phy-mode = "rmii";
+ 	phy-handle = <&ethphy1>;
++	phy-reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
++	phy-reset-duration = <200>;
+ 	status = "okay";
+ 
+ 	mdio {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		ethphy0: ethernet-phy@2 {
++		ethphy0: ethernet-phy@0 {
+ 			compatible = "ethernet-phy-ieee802.3-c22";
+-			reg = <2>;
++			smsc,disable-energy-detect;
++			reg = <0>;
+ 		};
+ 
+ 		ethphy1: ethernet-phy@1 {
+ 			compatible = "ethernet-phy-ieee802.3-c22";
++			smsc,disable-energy-detect;
+ 			reg = <1>;
+ 		};
+ 	};
+@@ -315,7 +321,7 @@
+ 				MX6UL_PAD_ENET1_TX_EN__ENET1_TX_EN	0x1b0b0
+ 				MX6UL_PAD_ENET1_TX_DATA0__ENET1_TDATA00	0x1b0b0
+ 				MX6UL_PAD_ENET1_TX_DATA1__ENET1_TDATA01	0x1b0b0
+-				MX6UL_PAD_ENET1_TX_CLK__ENET1_REF_CLK1	0x4001b031
++				MX6UL_PAD_ENET1_TX_CLK__ENET1_REF_CLK1	0x4001b009
+ 			>;
+ 		};
+ 
+@@ -330,7 +336,7 @@
+ 				MX6UL_PAD_ENET2_TX_EN__ENET2_TX_EN	0x1b0b0
+ 				MX6UL_PAD_ENET2_TX_DATA0__ENET2_TDATA00	0x1b0b0
+ 				MX6UL_PAD_ENET2_TX_DATA1__ENET2_TDATA01	0x1b0b0
+-				MX6UL_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	0x4001b031
++				MX6UL_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	0x4001b009
+ 			>;
+ 		};
+ 
+@@ -585,8 +591,6 @@
+                         fsl,pins = <
+                                 MX6ULL_PAD_BOOT_MODE0__GPIO5_IO10        0x70a1
+                                 MX6ULL_PAD_BOOT_MODE1__GPIO5_IO11        0x70a1
+-                                MX6ULL_PAD_SNVS_TAMPER7__GPIO5_IO07      0x70a1
+-                                MX6ULL_PAD_SNVS_TAMPER8__GPIO5_IO08      0x80000000
+                         >;
+                 };
+ 
+@@ -595,6 +599,18 @@
+                                 MX6ULL_PAD_SNVS_TAMPER4__GPIO5_IO04   0x17059
+                         >;
+                 };
++		pinctrl_enet1_reset: enet1resetgrp {
++                        fsl,pins = <
++                                /* used for enet1 reset */
++                                MX6ULL_PAD_SNVS_TAMPER7__GPIO5_IO07        0x10B0
++                        >;
++                };
++		pinctrl_enet2_reset: enet2resetgrp {
++                        fsl,pins = <
++                                /* used for enet2 reset */
++                                MX6ULL_PAD_SNVS_TAMPER8__GPIO5_IO08        0x10B0
++                        >;
++                };
+         };
+ };
+ 
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 2b16041..53c3c5e 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3449,6 +3449,19 @@ fec_probe(struct platform_device *pdev)
+ 	int num_tx_qs;
+ 	int num_rx_qs;
+ 
++	/* set MX6UL_PAD_ENET1_TX_CLK and
++	 * MX6UL_PAD_ENET2_TX_CLK the SION bit of
++	 * the multiplexed register of these two IO's is 1
++	 */
++	void __iomem *IMX6U_ENET1_TX_CLK;
++	void __iomem *IMX6U_ENET2_TX_CLK;
++
++	IMX6U_ENET1_TX_CLK = ioremap(0X020E00DC, 4);
++	writel(0X14, IMX6U_ENET1_TX_CLK);
++ 
++	IMX6U_ENET2_TX_CLK = ioremap(0X020E00FC, 4);
++	writel(0X14, IMX6U_ENET2_TX_CLK);
++
+ 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
+ 
+ 	/* Init network device */
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index c0f6479..f8fd48b 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -23,6 +23,8 @@
+ #include <linux/phy.h>
+ #include <linux/netdevice.h>
+ #include <linux/smscphy.h>
++#include <linux/of_gpio.h>
++#include <linux/io.h>
+ 
+ static int smsc_phy_config_intr(struct phy_device *phydev)
+ {
+@@ -59,6 +61,37 @@ static int smsc_phy_config_init(struct phy_device *phydev)
+ 
+ static int smsc_phy_reset(struct phy_device *phydev)
+ {
++	int err, phy_reset;
++	int msec = 1;
++	struct device_node *np;
++
++	if (phydev->addr == 0) /* FEC1  */ {
++		np = of_find_node_by_path("/soc/aips-bus@02100000/ethernet@02188000");
++		if (np == NULL) {
++			return -EINVAL;
++		}
++	}
++
++	if (phydev->addr == 1) /* FEC2  */ {
++		np = of_find_node_by_path("/soc/aips-bus@02000000/ethernet@020b4000");
++		if (np == NULL) {
++			return -EINVAL;
++		}
++	}
++
++	err = of_property_read_u32(np, "phy-reset-duration", &msec);
++	/* A sane reset duration should not be longer than 1s */
++	if (!err && msec > 1000)
++		msec = 1;
++	phy_reset = of_get_named_gpio(np, "phy-reset-gpios", 0);
++	if (!gpio_is_valid(phy_reset))
++		return;
++
++	gpio_direction_output(phy_reset, 0);
++	gpio_set_value(phy_reset, 0);
++	msleep(msec);
++	gpio_set_value(phy_reset, 1);
++
+ 	int rc = phy_read(phydev, MII_LAN83C185_SPECIAL_MODES);
+ 	if (rc < 0)
+ 		return rc;
+@@ -67,21 +100,23 @@ static int smsc_phy_reset(struct phy_device *phydev)
+ 	 * in all capable mode before using it.
+ 	 */
+ 	if ((rc & MII_LAN83C185_MODE_MASK) == MII_LAN83C185_MODE_POWERDOWN) {
+-		int timeout = 50000;
+ 
+ 		/* set "all capable" mode and reset the phy */
+ 		rc |= MII_LAN83C185_MODE_ALL;
+ 		phy_write(phydev, MII_LAN83C185_SPECIAL_MODES, rc);
+-		phy_write(phydev, MII_BMCR, BMCR_RESET);
+-
+-		/* wait end of reset (max 500 ms) */
+-		do {
+-			udelay(10);
+-			if (timeout-- == 0)
+-				return -1;
+-			rc = phy_read(phydev, MII_BMCR);
+-		} while (rc & BMCR_RESET);
+ 	}
++
++	phy_write(phydev, MII_BMCR, BMCR_RESET);
++
++	/* wait end of reset (max 500 ms) */
++	int timeout = 50000;
++	do {
++		udelay(10);
++		if (timeout-- == 0)
++			return -1;
++		rc = phy_read(phydev, MII_BMCR);
++	} while (rc & BMCR_RESET);
++
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+
