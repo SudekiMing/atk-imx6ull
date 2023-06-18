@@ -35,13 +35,13 @@ done
 # space. We don't rely on genimage to build the rootfs image, just to insert a
 # pre-built one in the disk image.
 
-trap 'rm -rf "${ROOTPATH_TMP}"' EXIT
-ROOTPATH_TMP="$(mktemp -d)"
+# trap 'rm -rf "${ROOTPATH_TMP}"' EXIT
+# ROOTPATH_TMP="$(mktemp -d)"
 
 rm -rf "${GENIMAGE_TMP}"
 
 genimage \
-	--rootpath "${ROOTPATH_TMP}"     \
+	--rootpath "${BINARIES_DIR}"     \
 	--tmppath "${GENIMAGE_TMP}"    \
 	--inputpath "${BINARIES_DIR}"  \
 	--outputpath "${BINARIES_DIR}" \
