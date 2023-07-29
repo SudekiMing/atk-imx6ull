@@ -487,6 +487,9 @@ BOARD_ROOT_DIR = $(call qstrip,$(BR2_BOARD_ROOT_DIR))
 # Target hostname
 TARGET_GENERIC_HOSTNAME = $(call qstrip,$(BR2_TARGET_GENERIC_HOSTNAME))
 
+# Top fragment config directory
+TOP_CONFIG_FRAGMENT_FILES = $(call qstrip,$(BR2_TARGET_TOP_CONFIG_FRAGMENT_FILES))
+
 # Scripts in support/ or post-build scripts may need to reference
 # these locations, so export them so it is easier to use
 export BR2_CONFIG
@@ -1025,8 +1028,19 @@ define percent_defconfig
 %_defconfig: $(BUILD_DIR)/buildroot-config/conf $(1)/configs/%_defconfig outputmakefile
 	@$$(COMMON_CONFIG_ENV) BR2_DEFCONFIG=$(1)/configs/$$@ \
 		$$< --defconfig=$(1)/configs/$$@ $$(CONFIG_CONFIG_IN)
+	@$$(MAKE) mergedefconfig
 endef
 $(eval $(foreach d,$(call reverse,$(TOPDIR) $(BR2_EXTERNAL_DIRS)),$(call percent_defconfig,$(d))$(sep)))
+
+define mergedefconfig
+# Merge the .config from TOP_CONFIG_FRAGMENT_FILES with the new defconfig
+mergedefconfig:
+ifneq ($(TOP_CONFIG_FRAGMENT_FILES),)
+	$(Q)$(CONFIG_SHELL) support/kconfig/merge_config.sh -m .config $(TOP_CONFIG_FRAGMENT_FILES)
+	+$(Q)yes "" | $(MAKE) -f Makefile oldconfig
+endif
+endef
+$(eval $(call mergedefconfig))
 
 update-defconfig: savedefconfig
 

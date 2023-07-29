@@ -183,6 +183,12 @@ config BR2_DEFCONFIG
 	  When running 'make savedefconfig', the defconfig file will be
 	  saved in this location.
 
+config BR2_TARGET_TOP_CONFIG_FRAGMENT_FILES
+	string "Additional configuration fragment files"
+	help
+	  A space-separated list of configuration fragment files,
+	  that will be merged to the main top defconfig configuration file.
+
 config BR2_DL_DIR
 	string "Download dir"
 	default "$(TOPDIR)/dl"
