@@ -1,0 +1,49 @@
+From 0de8fbba73dd7340524f7b2d3b4189665b3896f4 Mon Sep 17 00:00:00 2001
+From: SudekiMing <sudekiming@163.com>
+Date: Fri, 28 Jul 2023 23:18:46 +0800
+Subject: [PATCH] refactor: non switched to 1.8V operation mode
+
+A level conversion chip is added between the SDHC controller and the SD card.
+The SDHC operates at a voltage of 1.8V and the SD card operates at a voltage of 3.3V.
+When the SD card is switched to 1.8V operation mode,
+it cannot work properly because the external voltage is 3.3V.
+
+reference:
+Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+---
+ arch/arm/boot/dts/imx6ull-14x14-atk.dts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6ull-14x14-atk.dts b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+index 5188e18..599df39 100644
+--- a/arch/arm/boot/dts/imx6ull-14x14-atk.dts
++++ b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+@@ -68,7 +68,7 @@
+ 			regulator-name = "VSD_3V3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+-			gpio = <&gpio1 9 GPIO_ACTIVE_HIGH>;
++			/* gpio = <&gpio1 9 GPIO_ACTIVE_HIGH>; */
+ 			enable-active-high;
+ 		};
+ 
+@@ -291,7 +291,7 @@
+ 			fsl,pins = <
+ 				MX6UL_PAD_UART1_RTS_B__GPIO1_IO19	0x17059 /* SD1 CD */
+ 				MX6UL_PAD_GPIO1_IO05__USDHC1_VSELECT	0x17059 /* SD1 VSELECT */
+-				MX6UL_PAD_GPIO1_IO09__GPIO1_IO09        0x17059 /* SD1 RESET */
++				/* MX6UL_PAD_GPIO1_IO09__GPIO1_IO09        0x17059 /* SD1 RESET */
+ 			>;
+ 		};
+ 
+@@ -744,6 +744,7 @@
+ 	keep-power-in-suspend;
+ 	enable-sdio-wakeup;
+ 	vmmc-supply = <&reg_sd1_vmmc>;
++	no-1-8-v;
+ 	status = "okay";
+ };
+ 
+-- 
+2.7.4
+
