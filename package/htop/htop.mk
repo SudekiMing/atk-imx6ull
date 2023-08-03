@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-HTOP_VERSION = 3.1.2
-HTOP_SOURCE = htop-$(HTOP_VERSION).tar.xz
-HTOP_SITE = https://github.com/htop-dev/htop/releases/download/$(HTOP_VERSION)
+HTOP_VERSION = 2.1.1
+HTOP_SOURCE = htop-$(HTOP_VERSION).tar.gz
+HTOP_SITE = https://gitee.com/SudekiMing/htop/releases/download/$(HTOP_VERSION)
 HTOP_DEPENDENCIES = ncurses
 HTOP_AUTORECONF = YES
 # Prevent htop build system from searching the host paths
