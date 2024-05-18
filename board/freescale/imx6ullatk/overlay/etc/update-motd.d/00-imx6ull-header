@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# blue color
+echo -e "\e[1;34m 
+ ___   __  ____  ____   _   _ _     _
+|_ _| |  \/  \ \/ / /_ | | | | |   | |
+ | |  | |\/| |\  / '_ \| | | | |   | |
+ | | _| |  | |/  \ (_) | |_| | |___| |___
+|___(_)_|  |_/_/\_\___/ \___/|_____|_____|
+\e[0m\n";
+
+# eg: Welcome to atk i.mx6ull with GNU/Linux 4.1.15 armv7l
+echo -e "Welcome to\e[0;91m atk i.mx6ull\x1B[0m with \e[0;91m$(uname -o) $(uname -r) $(uname -m)\x1B[0m\n"

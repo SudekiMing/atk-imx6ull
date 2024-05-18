@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# construct dynamic update motd data
+run-parts /etc/update-motd.d > /run/motd.dynamic
