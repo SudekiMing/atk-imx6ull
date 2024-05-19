@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Start the ttyd....
+#
+
+PORT="7681"
+USER="root"
+PASSWORD="root"
+
+case "$1" in
+  start)
+	printf "Starting ttyd: "
+	ttyd -p $PORT -c $USER:$PASSWORD bash > /tmp/ttyd.log 2>&1 &
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+	;;
+  stop)
+	printf "Stopping ttyd: "
+	ps -ef | grep [t]tyd | grep -v grep | cut -d' ' -f1 | xargs kill >/dev/null 2>&1
+	[ $? = 0 ] && echo "OK" || echo "FAIL,No process"
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
