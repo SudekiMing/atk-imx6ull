@@ -2,7 +2,7 @@
 
 # After the build has finished and after Buildroot has packed the files into selected filesystem images:
 # Run image_post.sh
-# - prepare the image boot.src.uimg
+# - prepare the image boot.scr.uimg
 # - get sw-version and issue from "${BOARD_ROOT_DIR}/overlay/boot"
 # - generate new mountpoints and copy files to this mountpoints
 # - the default new mountpoints locate "${BINARIES_DIR}" usually directory "output/images"
@@ -30,6 +30,14 @@ uboot_deal() {
 	"${BOARD_ROOT_DIR}"/tools/imxdownload ${BINARIES_DIR}/u-boot.bin -512m || return 1
 	# rename uboot imx
 	mv load.imx ${BINARIES_DIR}/u-boot.imx
+}
+
+# generate boot.scr.uimg from boot.scr.cmd
+prepare_files() {
+	if ! mkimage -C none -A arm -T script -d "${scr_cmd_file}" "${scr_uimg_file}"; then
+		err "mkimage ${scr_uimg_file} from ${scr_cmd_file} error"
+		return 1
+	fi
 }
 
 # copy the partition files to the new mount point
@@ -87,6 +95,8 @@ clean_files() {
 		rm -rf "${BINARIES_DIR:?}/$f"
 	done
 }
+
+prepare_files || exit 1
 
 if ! uboot_deal; then
 	err "uboot deal error"
