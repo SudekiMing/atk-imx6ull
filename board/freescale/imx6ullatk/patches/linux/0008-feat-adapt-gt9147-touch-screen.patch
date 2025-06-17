@@ -1,0 +1,85 @@
+From 2df48246813bded5da1b0b9a28d09b370e6b7f4b Mon Sep 17 00:00:00 2001
+From: SudekiMing <sudekiming@163.com>
+Date: Tue, 17 Jun 2025 23:32:19 +0800
+Subject: [PATCH 2/2] feat: adapt gt9147 touch screen
+
+gt9147 touch screen bind to `i2c2` bus.
+---
+ arch/arm/boot/dts/imx6ull-14x14-atk.dts | 38 +++++++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6ull-14x14-atk.dts b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+index 599df39..ffd1fae 100644
+--- a/arch/arm/boot/dts/imx6ull-14x14-atk.dts
++++ b/arch/arm/boot/dts/imx6ull-14x14-atk.dts
+@@ -281,6 +281,19 @@
+ 			};
+ 		};
+ 	};
++
++	goodix_ts@5d {
++		compatible = "goodix,gt9xx", "goodix,gt1151";
++		reg = <0x14>;
++		status = "okay";
++		interrupt-parent = <&gpio1>;
++		interrupts = <9 0>;
++		pinctrl-0 = <&ts_int_pin
++			&ts_reset_pin>;
++		goodix,rst-gpio = <&gpio5 9  GPIO_ACTIVE_LOW>;
++		goodix,irq-gpio = <&gpio1 9  GPIO_ACTIVE_LOW>;
++	};
++
+ };
+ 
+ &iomuxc {
+@@ -561,6 +574,12 @@
+ 				MX6UL_PAD_LCD_RESET__WDOG1_WDOG_ANY    0x30b0
+ 			>;
+ 		};
++
++		ts_int_pin: ts_int_pin_mux {
++			fsl,pins = <
++				MX6UL_PAD_GPIO1_IO09__GPIO1_IO09	0x79
++			>;
++		};
+ 	};
+ };
+ 
+@@ -612,6 +631,11 @@
+                         >;
+                 };
+         };
++		ts_reset_pin: ts_reset_pin_mux {
++			fsl,pins = <
++				MX6ULL_PAD_SNVS_TAMPER9__GPIO5_IO09	0x79
++			>;
++		};
+ };
+ 
+ 
+@@ -630,15 +654,15 @@
+ 		display-timings {
+ 			native-mode = <&timing0>;
+ 			timing0: timing0 {
+-			clock-frequency = <9200000>;
++			clock-frequency = <9000000>;
+ 			hactive = <480>;
+ 			vactive = <272>;
+-			hfront-porch = <8>;
+-			hback-porch = <4>;
+-			hsync-len = <41>;
+-			vback-porch = <2>;
+-			vfront-porch = <4>;
+-			vsync-len = <10>;
++			hfront-porch = <5>;
++			hback-porch = <40>;
++			hsync-len = <20>;
++			vback-porch = <8>;
++			vfront-porch = <8>;
++			vsync-len = <3>;
+ 
+ 			hsync-active = <0>;
+ 			vsync-active = <0>;
+-- 
+2.7.4
+
