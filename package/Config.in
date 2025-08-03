@@ -2201,6 +2201,7 @@ endif
 	source "package/fping/Config.in"
 	source "package/freeswitch/Config.in"
 	source "package/freeswitch-mod-bcg729/Config.in"
+	source "package/frp/Config.in"
 	source "package/frr/Config.in"
 	source "package/gerbera/Config.in"
 	source "package/gesftpserver/Config.in"
