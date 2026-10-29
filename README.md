@@ -10,6 +10,17 @@ Official Gitee documentation and source code reference: https://gitee.com/Guangz
 
 
 
+## Requirements
+
+You can compile this board using Ubuntu 20.04, and some necessary dependency packages need to be installed.
+
+```shell
+sudo apt install libncurses-dev openssl libssl-dev libghc-gnutls-dev
+pip3 install importlib-resources
+```
+
+
+
 ## Quickstart
 
 ### Clone
@@ -23,6 +34,7 @@ git clone https://github.com/SudekiMing/atk-imx6ull
 ```shell
 cd atk-imx6ull
 make imx6ull_atk_defconfig
+make
 ```
 
 ### Startup
